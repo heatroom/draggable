@@ -1,0 +1,14 @@
+{
+  "name": "get-style",
+  "repo": "heatroom/get-style",
+  "description": "get style.",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {},
+  "development": {},
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": [
+    "index.js"
+  ]
+}

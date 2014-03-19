@@ -1,0 +1,14 @@
+{
+  "name": "extend",
+  "repo": "heatroom/extend",
+  "description": "extend an object with another, just like in underscore.",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {},
+  "development": {},
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": [
+    "index.js"
+  ]
+}

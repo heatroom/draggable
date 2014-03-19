@@ -1,0 +1,22 @@
+{
+  "name": "draggable",
+  "repo": "heatroom/draggable",
+  "description": "make element draggable",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {
+    "component/jquery": "*",
+    "component/emitter": "*",
+    "component/event": "*",
+    "heatroom/get-size": "*",
+    "heatroom/get-style": "*",
+    "heatroom/get-style-property": "*",
+    "heatroom/extend": "*"
+  },
+  "development": {},
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": [
+    "index.js"
+  ]
+}
