@@ -1,8 +1,7 @@
-
 var $ = require('jquery');
 var getStyleProperty = require('get-style-property');
 var getSize = require('get-size');
-var getStyle = require('get-style');
+var getStyle = require('get-style').getStyle;
 var extend = require('extend');
 var events = require('event');
 var Emitter = require('emitter');
@@ -36,7 +35,6 @@ var transformProperty = getStyleProperty('transform');
 // TODO fix quick & dirty check for 3D support
 var is3d = !! getStyleProperty('perspective');
 
-
 Emitter(Draggable.prototype);
 
 Draggable.prototype.options = {};
@@ -52,9 +50,9 @@ Draggable.prototype._create = function() {
   this.startPosition = extend({}, this.position);
 
   //set relative positioning
-  var style = getStyle(this.element[0]);
+  var style = getStyle(this.element);
   if(style.position !== 'relative' && style.position !== 'absolute') {
-    this.element[0].style.position = 'relative';
+    this.element.style.position = 'relative';
   }
 
   this.enable();
@@ -67,7 +65,7 @@ Draggable.prototype._create = function() {
 
 Draggable.prototype.setHandles = function() {
   this.handles = this.options.handle ?
-    this.element.find(this.options.handle) : [this.element];
+    $(this.element).find(this.options.handle) : [this.element];
 
   for (var i = 0, len = this.handles.length; i < len; i++) {
     var handle = this.handles[i];
@@ -85,8 +83,8 @@ Draggable.prototype.setHandles = function() {
     } else {
       // listen for both, for devices like Chrome Pixel
       //   which has touch and mouse events
-      handle.on('mousedown', 'onmousedown', this );
-      handle.on('touchstart', 'ontouchstart', this );
+      events.bind(handle, 'mousedown', this );
+      events.bind(handle, 'touchstart',  this );
       disableImgOndragstart( handle );
     }
   }
@@ -111,7 +109,7 @@ var disableImgOndragstart = !isIE8 ? function() {} : function( handle ) {
 
   // var images = handle.querySelectorAll('img');
   var images = $(handle).find('img');
-  for ( var i=0, len = images.length; i < len; i++ ) {
+  for ( var i = 0, len = images.length; i < len; i++ ) {
     var img = images[i];
     img.ondragstart = noDragStart;
   }
@@ -119,10 +117,14 @@ var disableImgOndragstart = !isIE8 ? function() {} : function( handle ) {
 
 Draggable.prototype._getPosition = function() {
   //properties
-  var style = getStyle(this.element[0]);
+  var style = getStyle(this.element);
 
   var x = parseInt(style.left, 10);
-  var y = parseInt(style.right, 10);
+  var y = parseInt(style.top, 10);
+
+  // clean up 'auto' or other non-integer values
+  this.position.x = isNaN( x ) ? 0 : x;
+  this.position.y = isNaN( y ) ? 0 : y;
 
   this._addTransformPosition( style );
 };
@@ -257,12 +259,12 @@ Draggable.prototype.dragStart = function( event, pointer ) {
     node: event.preventDefault ? window : document
   });
 
-  this.element.addClass('is-dragging');
+  $(this.element).addClass('is-dragging');
 
   // reset isDragging flag
   this.isDragging = true;
 
-  this.emit( 'dragStart', [ this, event, pointer ] );
+  this.emit( 'dragStart', this, event, pointer );
 
   // start animation
   this.animate();
@@ -272,7 +274,7 @@ Draggable.prototype.dragStart = function( event, pointer ) {
 Draggable.prototype._bindEvents = function( args ) {
   for ( var i = 0, len = args.events.length; i < len; i++ ) {
     var event = args.events[i];
-    eventie.bind( args.node, event, this );
+    events.bind( args.node, event, this );
   }
   // save these arguments
   this._boundEvents = args;
@@ -287,7 +289,7 @@ Draggable.prototype._unbindEvents = function() {
 
   for ( var i = 0, len = args.events.length; i < len; i++ ) {
     var event = args.events[i];
-    eventie.unbind( args.node, event, this );
+    events.unbind( args.node, event, this );
   }
   delete this._boundEvents;
 };
@@ -304,7 +306,7 @@ Draggable.prototype.measureContainment = function() {
   // use element if element
   var container = isElement( containment ) ? containment :
     // fallback to querySelector if string
-    typeof containment === 'string' ? document.querySelector( containment ) :
+    typeof containment === 'string' ? document.querySelector( containment ) || window.document.defaultView :
     // otherwise just `true`, use the parent
     this.element.parentNode;
 
@@ -369,7 +371,7 @@ Draggable.prototype.dragMove = function( event, pointer ) {
   this.dragPoint.x = dragX;
   this.dragPoint.y = dragY;
 
-  this.emit( 'dragMove', [ this, event, pointer ] );
+  this.emit( 'dragMove', this, event, pointer );
 };
 
 function applyGrid( value, grid, method ) {
@@ -429,9 +431,9 @@ Draggable.prototype.dragEnd = function( event, pointer ) {
   // remove events
   this._unbindEvents();
 
-  this.element.removeClass('is-dragging' );
+  $(this.element).removeClass('is-dragging' );
 
-  this.emit( 'dragEnd', [ this, event, pointer ] );
+  this.emit( 'dragEnd', this, event, pointer );
 
 };
 
